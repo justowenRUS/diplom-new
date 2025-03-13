@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Овчинникова",
+    "slug": "diplom-new",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "updates": {
+      "url": "https://u.expo.dev/29820fa8-8cc6-4ce7-b0df-3bb238c0af4d",
+      "checkAutomatically": "WIFI_ONLY",
+      "fallbackToCacheTimeout": 0,
+      "channel": "preview"
+    },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.justowen.diplomnew",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.justowen.diplomnew"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "29820fa8-8cc6-4ce7-b0df-3bb238c0af4d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    } 
+  }
+}
