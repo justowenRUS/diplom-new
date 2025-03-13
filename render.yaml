@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: news-scraper
+    env: node
+    repo: https://github.com/justowenRUS/diplom-new.git 
+    rootDir: server 
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: disk1
+      mountPath: /tmp
+      sizeGB: 0.5
