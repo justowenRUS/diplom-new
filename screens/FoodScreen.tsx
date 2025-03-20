@@ -28,7 +28,7 @@ const FoodScreen = () => {
                 }
         
                 // Используем .getTime() для получения миллисекунд
-                const referenceDate = new Date('2025-03-04'); // Понедельник, день 1
+                const referenceDate = new Date('2025-03-05'); // Понедельник, день 1
                 const daysSinceReference = Math.floor((date.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24));
                 const cycleLength = 12; // 12 дней в цикле
                 const positionInCycle = daysSinceReference % cycleLength;

@@ -273,7 +273,7 @@ export default function ScheduleScreen() {
                   <Text style={dynamicStyles.cardText}>{lesson}</Text>
                 </View>
               ))}
-            </View>
+            </View> 
           ))
         ) : (
           <Text style={dynamicStyles.text}>Расписание для вашей группы не найдено.</Text>

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useTheme } from '../ThemeContext';
 import { parse, HTMLElement } from 'node-html-parser';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface NewsItem {
   date: string;
@@ -13,50 +12,16 @@ interface NewsItem {
   link: string;
 }
 
-const CACHE_KEY = 'newsCache';
-
 export default function MainScreen() {
   const { isDarkMode } = useTheme();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [error, setError] = useState<string>('');
 
-  // Функция для сохранения новостей в кэш
-  const saveNewsToCache = async (newsData: NewsItem[]) => {
-    try {
-      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(newsData));
-      console.log('Новости сохранены в кэш');
-    } catch (err) {
-      console.error('Ошибка сохранения в кэш:', err);
-    }
-  };
-
-  // Функция для загрузки новостей из кэша
-  const loadNewsFromCache = async (): Promise<NewsItem[]> => {
-    try {
-      const cachedNews = await AsyncStorage.getItem(CACHE_KEY);
-      if (cachedNews) {
-        const parsedNews = JSON.parse(cachedNews);
-        console.log('Загружено из кэша:', parsedNews);
-        return parsedNews;
-      }
-    } catch (err) {
-      console.error('Ошибка загрузки из кэша:', err);
-    }
-    return [];
-  };
-
   useEffect(() => {
     const fetchData = async () => {
-      // 1. Загружаем кэшированные новости
-      const cachedNews = await loadNewsFromCache();
-      if (cachedNews.length > 0) {
-        setNews(cachedNews);
-      }
-
       try {
-        // 2. Запрашиваем новые данные
         console.log('1. Запрос списка новостей...');
-        const response = await fetch('http://192.168.1.118:3000/news');
+        const response = await fetch('http://188.130.154.89:3000/news');
         const html = await response.text();
         const root = parse(html);
         const newsSlider = root.querySelector('.app-news-tab-list-box-slider');
@@ -75,12 +40,11 @@ export default function MainScreen() {
           return { date, title, description: '', imageUrl: '', link };
         });
 
-        // 3. Получаем полное содержимое для каждой новости
         const detailedNews = await Promise.all(
           initialNews.map(async (newsItem) => {
             if (!newsItem.link) return newsItem;
             console.log(`2. Запрос полной новости: ${newsItem.link}`);
-            const detailResponse = await fetch(`http://192.168.1.118:3000/news?url=${encodeURIComponent(newsItem.link)}`);
+            const detailResponse = await fetch(`http://188.130.154.89:3000/news?url=${encodeURIComponent(newsItem.link)}`);
             const detailHtml = await detailResponse.text();
             const detailRoot = parse(detailHtml);
 
@@ -95,30 +59,12 @@ export default function MainScreen() {
           })
         );
 
-        // 4. Сравниваем с кэшем и обновляем
-        const cachedLinks = new Set(cachedNews.map((item: NewsItem) => item.link));
-        const newLinks = new Set(detailedNews.map((item) => item.link));
-
-        // Удаляем старые новости, которых больше нет
-        const updatedNews = detailedNews.filter((item) => newLinks.has(item.link));
-        const removedNews = cachedNews.filter((item: NewsItem) => !newLinks.has(item.link));
-        if (removedNews.length > 0) {
-          console.log('Удалены старые новости:', removedNews.map((item: NewsItem) => item.title));
-        }
-
-        // Добавляем только новые или обновлённые новости
-        const finalNews = [...updatedNews];
-        console.log('3. Устанавливаем новости:', finalNews);
-        setNews(finalNews.length > 0 ? finalNews : [{ date: '', title: 'Новостей нет', description: '', imageUrl: '', link: '' }]);
-
-        // 5. Сохраняем обновлённые новости в кэш
-        await saveNewsToCache(finalNews);
+        console.log('3. Устанавливаем новости:', detailedNews);
+        setNews(detailedNews.length > 0 ? detailedNews : [{ date: '', title: 'Новостей нет', description: '', imageUrl: '', link: '' }]);
       } catch (error) {
         console.error('Ошибка:', error);
         setError('Ошибка загрузки данных: ' + error.message);
-        if (cachedNews.length === 0) {
-          setNews([{ date: '', title: 'Ошибка загрузки данных', description: '', imageUrl: '', link: '' }]);
-        }
+        setNews([{ date: '', title: 'Ошибка загрузки данных', description: '', imageUrl: '', link: '' }]);
       }
     };
 
