@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   View,
@@ -15,16 +15,14 @@ import FoodScreen from '../screens/FoodScreen';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-// Определяем типы для параметров навигации
 type TabParamList = {
   Новости: undefined;
-  Расписание: undefined;
+  Расписание: undefined; // Пропсы не нужны в типе, так как используем children
   Питание: undefined;
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// Упрощённый ThemeToggleButton
 const ThemeToggleButton: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
 
@@ -45,13 +43,15 @@ const ThemeToggleButton: React.FC = () => {
 
 const TabNavigator = () => {
   const { isDarkMode } = useTheme();
+  const [isTeacherMode, setIsTeacherMode] = useState(false);
 
-  // Кастомный компонент для вкладки
-  const CustomTabBarButton: React.FC<BottomTabBarButtonProps & { children: React.ReactNode }> = ({
-    children,
-    onPress,
-    accessibilityState,
-  }) => {
+  const toggleMode = () => {
+    setIsTeacherMode((prev) => !prev);
+  };
+
+  const CustomTabBarButton: React.FC<
+    BottomTabBarButtonProps & { children: React.ReactNode }
+  > = ({ children, onPress, accessibilityState }) => {
     const focused = accessibilityState?.selected ?? false;
     const scaleValue = new Animated.Value(1);
 
@@ -141,7 +141,6 @@ const TabNavigator = () => {
         />
         <Tab.Screen
           name="Расписание"
-          component={ScheduleScreen}
           options={{
             tabBarIcon: ({ color, size }) => icons.Schedule({ color, size }),
             tabBarButton: (props) => <CustomTabBarButton {...props} />,
@@ -157,7 +156,9 @@ const TabNavigator = () => {
               </Text>
             ),
           }}
-        />
+        >
+          {() => <ScheduleScreen isTeacherMode={isTeacherMode} />}
+        </Tab.Screen>
         <Tab.Screen
           name="Питание"
           component={FoodScreen}
@@ -178,7 +179,23 @@ const TabNavigator = () => {
           }}
         />
       </Tab.Navigator>
-      <ThemeToggleButton />
+      <View style={styles.buttonContainer}>
+        <ThemeToggleButton />
+        <TouchableOpacity
+          onPress={toggleMode}
+          style={[
+            styles.modeButtonContainer,
+            { backgroundColor: isTeacherMode ? '#4CAF50' : '#2196F3' },
+          ]}
+          activeOpacity={0.9}
+        >
+          <Ionicons
+            name={isTeacherMode ? 'school' : 'people'}
+            size={24}
+            color="#ffffff"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -187,6 +204,13 @@ const styles = StyleSheet.create({
   navigatorContainer: {
     flex: 1,
     position: 'relative',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    flexDirection: 'column',
+    gap: 10,
   },
   tabButton: {
     flex: 1,
@@ -205,13 +229,22 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.05 }],
   },
   themeButtonContainer: {
-    position: 'absolute',
-    bottom: 90,
-    right: 20,
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#ff6b6b', // Временный фон вместо градиента
+    backgroundColor: '#ff6b6b',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modeButtonContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
